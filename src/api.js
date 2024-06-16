@@ -25,9 +25,9 @@ export const fetchStudentById = async (id) => {
 };
 
 // Register a new user
-export const registerUser = async (username, password, role) => {
+export const registerUser = async (email, username, password, role) => {
     try {
-        const response = await axios.post(`${API_BASE_URL}/register`, { username, password, role }, { withCredentials: true });
+        const response = await axios.post(`${API_BASE_URL}/register`, { email, username, password, role }, { withCredentials: true });
         return response.data;
     } catch (error) {
         console.error('Error registering user:', error);

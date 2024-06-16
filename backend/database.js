@@ -25,9 +25,9 @@ export async function getStudent(id) {
 }
 
 // Create a new user
-export async function createUser(username, password, role) {
+export async function createUser(email, username, password, role) {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const [result] = await pool.query("INSERT INTO user (username, password, role) VALUES (?, ?, ?)", [username, hashedPassword, role]);
+    const [result] = await pool.query("INSERT INTO user (email, username, password, role) VALUES (?, ?, ?, ?)", [email, username, hashedPassword, role]);
     return result.insertId;
 }
 

@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import express from 'express';
 import cors from 'cors';
 import session from 'express-session';
@@ -24,18 +25,18 @@ const sessionStore = new MySQLStore(dbOptions);
 
 // Configure session middleware
 app.use(session({
-    key: 'session_cookie_name',
-    secret: process.env.SESSION_SECRET, // Replace with a secure secret key
+    key: 'enrollment_session',
+    secret: process.env.SESSION_SECRET,
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false } // Set to true if using HTTPS
+    cookie: { secure: false }
 }));
 
 // Set up CORS configuration
 const corsOptions = {
-    origin: 'http://localhost:5173', // Replace with your frontend's origin
-    credentials: true, // Enable credentials
+    origin: 'http://localhost:5173',
+    credentials: true,
 };
 
 app.use(cors(corsOptions));
@@ -71,9 +72,9 @@ app.get('/api/student/:id', async (req, res) => {
 
 // Route for user registration
 app.post('/api/register', async (req, res) => {
-    const { username, password, role } = req.body;
+    const { email, username, password, role } = req.body;
     try {
-        await createUser(username, password, role);
+        await createUser(email, username, password, role);
         res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
         console.error('Error registering user:', error);
@@ -88,6 +89,7 @@ app.post('/api/login', async (req, res) => {
         const user = await getUserByUsername(username);
         if (user && await bcrypt.compare(password, user.password)) {
             req.session.userId = user.id;
+            req.session.email = user.email;
             req.session.username = user.username;
             req.session.role = user.role;
             res.json({ message: 'Login successful' });
@@ -103,7 +105,7 @@ app.post('/api/login', async (req, res) => {
 // Route for fetching user profile
 app.get('/api/profile', (req, res) => {
     if (req.session.username) {
-        res.json({ username: req.session.username, role: req.session.role });
+        res.json({ email: req.session.email, username: req.session.username, role: req.session.role });
     } else {
         res.status(401).json({ error: 'Unauthorized' });
     }
@@ -120,6 +122,7 @@ app.post('/api/logout', (req, res) => {
     });
 });
 
+// Start the express server
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
