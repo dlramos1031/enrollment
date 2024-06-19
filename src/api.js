@@ -147,7 +147,11 @@ export const fetchPrograms = async (dept_id) => {
 
 // Submit application
 export const submitApplication = async (formData) => {
+    console.log(formData);
     try {
+        const response = await axios.get(`${API_BASE_URL}/student/exists/session`, { withCredentials: true });
+        const exists = response.data.exists;
+        const mode = (exists ? 'update' : 'create');
         const studentForm = {
             firstName: formData.firstName,
             lastName: formData.lastName,
@@ -163,9 +167,8 @@ export const submitApplication = async (formData) => {
             programID: formData.degreeProgram,
             studentType: formData.studentType
         };
-        console.log("Showing application form: ", applicationForm);
-        await axios.post(`${API_BASE_URL}/create/student`, studentForm, { withCredentials: true });
-        await axios.post(`${API_BASE_URL}/create/application`, applicationForm, { withCredentials: true });
+        await axios.post(`${API_BASE_URL}/${mode}/student`, studentForm, { withCredentials: true });
+        await axios.post(`${API_BASE_URL}/${mode}/application`, applicationForm, { withCredentials: true });
     } catch (error) {
         console.error(`Error submitting application:`, error);
         throw error;

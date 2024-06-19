@@ -19,8 +19,8 @@ const Home = () => {
     loadProfile();
   }, [navigate]);
 
-  const handleProfileNavigation = () => {
-    navigate("/dashboard/profile");
+  const handleAppFormNavigation = () => {
+    navigate("/dashboard/appform");
   };
 
   return (
@@ -38,26 +38,20 @@ const Home = () => {
           <p>
             Start by setting up your{" "}
             <span
-              onClick={handleProfileNavigation}
+              onClick={handleAppFormNavigation}
               className="text-indigo-600 cursor-pointer hover:underline"
             >
-              Profile
+              Application Form
             </span>.
           </p>
           <p>
-            After setting up, please wait for the Admission Staff to verify your profile.
+            After setting up, please wait for the Admission Staff to verify your form.
           </p>
         </div>
       ) : (profile.role === 1) ? (
         <div className="text-lg text-gray-700">
           <p>
-            Apply for an admissoin on 
-            <span
-              onClick={handleProfileNavigation}
-              className="text-indigo-600 cursor-pointer hover:underline"
-            >
-              Application
-            </span> page.
+            Your application form has been accepted! Please wait for the full confirmation.
           </p>
         </div>
       ) : profile.role === 2 ? (

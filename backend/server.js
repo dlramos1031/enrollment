@@ -4,7 +4,7 @@ import cors from 'cors';
 import session from 'express-session';
 import MySQLStore from 'express-mysql-session';
 import bcrypt from 'bcrypt';
-import { getStudent, getStudents, createUser, getUserByUsername, createStudent, getUserByEmail, getDepartments, getProgram, createApplication, getStudentIDByUserID, getFormByUsername, getDepartmentByProgram } from './database.js';
+import { getStudent, getStudents, createUser, getUserByUsername, createStudent, getUserByEmail, getDepartments, getProgram, createApplication, getStudentIDByUserID, getFormByUsername, getDepartmentByProgram, hasProfile, updateStudent, updateApplication } from './database.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -30,8 +30,10 @@ app.use(session({
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false }
+    rolling: true, // Renew session each request
+    cookie: { secure: false, maxAge: 30 * 60 * 1000 } // 30 minutes
 }));
+
 
 // Set up CORS configuration
 const corsOptions = {
@@ -73,9 +75,13 @@ app.get('/api/student/:id', async (req, res) => {
 // Route for fetching a student with specific ID
 app.get('/api/studentcurrent', async (req, res) => {
     try {
-        const student = await getFormByUsername(req.session.username);
-        const department = await getDepartmentByProgram(student.program_id);
-        res.json({ ...student, ...department });
+        if (await hasProfile(req.session.username)) {
+            const student = await getFormByUsername(req.session.username);
+            const department = await getDepartmentByProgram(student.program_id);
+            res.json({ ...student, ...department });
+        } else {
+            res.json({ error: 'Profile not found.' });
+        }
     } catch (error) {
         console.error('Error fetching student:', error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -112,6 +118,17 @@ app.get('/api/user/exists/email/:email', async (req, res) => {
         const email = req.params.email;
         const user = await getUserByEmail(email);
         res.json({exists: !(!user)}); // Pasagdaan kay nigana man
+    } catch (error) {
+        console.error('Error fetching user:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.get('/api/student/exists/session', async (req, res) => {
+    try {
+        const username = req.session.username;
+        const rows = await hasProfile(username);
+        res.json({ exists: Boolean(rows) });
     } catch (error) {
         console.error('Error fetching user:', error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -179,7 +196,7 @@ app.post('/api/logout', (req, res) => {
     });
 });
 
-// Route fot student profile creation
+// Route for student profile creation
 app.post('/api/create/student', async (req, res) => {
     const { firstName, middleName, lastName, suffix, dateOfBirth, gender, contactNumber, email, homeAddress } = req.body;
     const user = await getUserByUsername(req.session.username);
@@ -192,15 +209,41 @@ app.post('/api/create/student', async (req, res) => {
     }
 });
 
-// Route for student applicatoin creation
+// Route for student application creation
 app.post('/api/create/application', async (req, res) => {
     const { programID, studentType } = req.body;
     const user = await getUserByUsername(req.session.username);
     try {
         const studentID = await getStudentIDByUserID(user.user_id);
-        console.log("Showing Student ID: ", studentID);
         await createApplication(studentID.student_id, programID, studentType);
         res.status(201).json({ message: 'Student application created successfully' });
+    } catch (error) {
+        console.error('Error creating application:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Route for student profile update
+app.post('/api/update/student', async (req, res) => {
+    const { firstName, middleName, lastName, suffix, dateOfBirth, gender, contactNumber, email, homeAddress } = req.body;
+    const user = await getUserByUsername(req.session.username);
+    try {
+        await updateStudent(firstName, middleName, lastName, suffix, dateOfBirth, gender, contactNumber, email, homeAddress, user.user_id);
+        res.status(201).json({ message: 'Student profile updated successfully' });
+    } catch (error) {
+        console.error('Error creating profile:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Route for student applicatoin update
+app.post('/api/update/application', async (req, res) => {
+    const { programID, studentType } = req.body;
+    const user = await getUserByUsername(req.session.username);
+    try {
+        const studentID = await getStudentIDByUserID(user.user_id);
+        await updateApplication(studentID.student_id, programID, studentType);
+        res.status(201).json({ message: 'Student application updated successfully' });
     } catch (error) {
         console.error('Error creating application:', error);
         res.status(500).json({ error: 'Internal Server Error' });

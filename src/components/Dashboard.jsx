@@ -19,7 +19,6 @@ const Dashboard = () => {
         navigate("/login");
       }
     };
-    console.log("Using use effect on Dashboard");
     loadProfile();
   }, [navigate]);
 
@@ -33,9 +32,7 @@ const Dashboard = () => {
       <Sidebar>
         <SidebarItem icon={<Home size={20} />} text="Home" alert to="/dashboard/" />
         {profile.role === 0 && <SidebarItem icon={<StickyNote size={20} />} text="Application Form" alert to="/dashboard/appform" />}
-        {profile.role === 1 && <SidebarItem icon={<CircleUserRound size={20} />} text="Profile" alert to="/dashboard/profile" />}
-        {profile.role === 1 && <SidebarItem icon={<StickyNote size={20} />} text="Application" alert to="/dashboard/application" />}
-        {profile.role === 1 && <SidebarItem icon={<StickyNote size={20} />} text="Enrollment" alert to="/dashboard/enrollment" />}
+        {profile.role === 1 && <SidebarItem icon={<CircleUserRound size={20} />} text="Profile" alert to="/dashboard/appform" />}
         {profile.role >= 2 && <SidebarItem icon={<StickyNote size={20} />} text="Application List" alert to="/dashboard/applist" />}
         {profile.role >= 2 && <SidebarItem icon={<StickyNote size={20} />} text="Student Profile List" alert to="/dashboard/proflist" />}
         <hr className="my-3" />

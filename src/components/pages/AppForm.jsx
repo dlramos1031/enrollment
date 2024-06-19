@@ -25,6 +25,7 @@ function AppForm() {
     contactNumber: "",
     homeAddress: "",
     // From application
+    collegeDepartment: "",
     degreeProgram: "",
     studentType: "",
   });
@@ -63,7 +64,7 @@ function AppForm() {
       } catch (error) {
         console.error("Error fetching role:", error);
       }
-    }
+    };
     fetchSessionRole();
   }, []);
 
@@ -73,15 +74,16 @@ function AppForm() {
         const student = await fetchStudentProfile();
         setFormData(student);
       } catch (error) {
-        console.error("Error fetching form:", error); 
+        console.error("Error fetching form:", error);
       }
-    }
+    };
     fetchFormData();
-  }, [collegeDepartments, degreePrograms]);
+  }, []);
 
   // Handle input change and update state
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    console.log(formData);
   };
 
   // Handle form submission
@@ -92,8 +94,7 @@ function AppForm() {
     );
     if (confirmSave) {
       try {
-        const response = await submitApplication(formData);
-        console.log(response);
+        await submitApplication(formData);
         setMode("view");
       } catch (error) {
         console.error("Error updating profile:", error);
@@ -410,9 +411,9 @@ function AppForm() {
               </button>
             </>
           ) : (
-            <h1>
-              Hello
-            </h1>
+            <div className="mb-4 p-2 rounded-md text-blue-800 bg-blue-300">
+              Contact an Admin to edit your profile.
+            </div>
           )}
         </div>
       </form>
