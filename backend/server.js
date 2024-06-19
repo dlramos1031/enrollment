@@ -4,7 +4,7 @@ import cors from 'cors';
 import session from 'express-session';
 import MySQLStore from 'express-mysql-session';
 import bcrypt from 'bcrypt';
-import { getStudent, getStudents, createUser, getUserByUsername, createStudent, getUserByEmail, getDepartments, getProgram, createApplication, getStudentIDByUserID, getFormByUsername, getDepartmentByProgram, hasProfile, updateStudent, updateApplication } from './database.js';
+import { getStudent, getStudents, createUser, getUserByUsername, createStudent, getUserByEmail, getDepartments, getProgram, createApplication, getStudentIDByUserID, getFormByUsername, getDepartmentByProgram, hasProfile, updateStudent, updateApplication, getApplications, getAppStatusByUsername } from './database.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -76,8 +76,10 @@ app.get('/api/student/:id', async (req, res) => {
 app.get('/api/studentcurrent', async (req, res) => {
     try {
         if (await hasProfile(req.session.username)) {
+            console.log("Current session username: ", req.session.username);
             const student = await getFormByUsername(req.session.username);
             const department = await getDepartmentByProgram(student.program_id);
+            console.log("Fetched form: ", { ...student, ...department });
             res.json({ ...student, ...department });
         } else {
             res.json({ error: 'Profile not found.' });
@@ -246,6 +248,40 @@ app.post('/api/update/application', async (req, res) => {
         res.status(201).json({ message: 'Student application updated successfully' });
     } catch (error) {
         console.error('Error creating application:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Route for fetching application forms
+app.get('/api/application', async (req, res) => {
+    let status = 0;     // Waiting for Admin Staff approval
+    switch (req.session.role) {
+        case 4:         // Registrar
+            status = 2; // Dept. Head approved / Pending Registrar approval
+            break;
+        case 3:         // Dept Head
+            status = 1; // Admin Staff approved / Pending Dept. Head approval
+            break;
+        case 2:         // Admin Staff
+        default:
+            break;
+    }
+    try {
+        const applications = await getApplications(status);
+        res.json(applications);
+    } catch (error) {
+        console.error('Error fetching applications:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Route for fetching application status using session user id
+app.get('/api/application/status/session', async (req, res) => {
+    try {
+        const result = await getAppStatusByUsername(req.session.username);
+        res.json(result);
+    } catch (error) {
+        console.error('Error fetching application status:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });

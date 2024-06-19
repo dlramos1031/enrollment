@@ -6,6 +6,7 @@ import Register from "./components/Register";
 import Dashboard from "./components/Dashboard";
 import Home from "./components/pages/Home";
 import AppForm from "./components/pages/AppForm";
+import AppList from "./components/pages/AppList";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />}>
           <Route path="" element={<Home />} />
           <Route path="appform" element={<AppForm />} />
+          <Route path="applist" element={<AppList />} />
         </Route>
       </Routes>
     </Router>

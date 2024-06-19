@@ -10,7 +10,7 @@ export function Sidebar({ children }) {
     const [expanded, setExpanded] = useState(false);
 
     return (
-        <aside className="h-screen sticky">
+        <aside className="h-screen">
             <nav className="h-full flex flex-col bg-white bg-opacity-80 border-r shadow-sm">
                 <div className="p-4 pb-2 flex justify-between items-center">
                     <img src={logo} className={`overflow-hidden transition-all ${expanded ? "w-32" : "w-0"}`} />

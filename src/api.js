@@ -145,9 +145,30 @@ export const fetchPrograms = async (dept_id) => {
     }
 };
 
+// Fetch Programs of a specific Department
+export const fetchApplications = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/application`, { withCredentials: true });
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching applications:`, error);
+        throw error;
+    }
+};
+
+// Fetch Application Status using Student ID
+export const fetchSessionApplicationStatus = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/application/status/session`, { withCredentials: true });
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching applications:`, error);
+        throw error;
+    }
+}
+
 // Submit application
 export const submitApplication = async (formData) => {
-    console.log(formData);
     try {
         const response = await axios.get(`${API_BASE_URL}/student/exists/session`, { withCredentials: true });
         const exists = response.data.exists;

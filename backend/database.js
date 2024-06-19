@@ -42,6 +42,12 @@ export async function getFormByUsername(username) {
     return rows[0];
 }
 
+// fetching application status using student id
+export async function getAppStatusByUsername(username) {
+    const [rows] = await pool.query("SELECT a.`application_status` FROM `application` a JOIN `student` s ON a.`student_id` = s.`student_id` JOIN `user` u ON s.`user_id` = u.`user_id` WHERE u.`username` = ?", [username]);
+    return rows[0];
+}
+
 // Checking if user has existing student profile
 export async function hasProfile(username) {
     const [rows] = await pool.query("SELECT * FROM `student` s INNER JOIN `user` u ON s.user_id = u.user_id WHERE u.username = ?", [username]);
@@ -49,7 +55,7 @@ export async function hasProfile(username) {
 }
 
 export async function getDepartmentByProgram(id) {
-    const [rows] = await pool.query("SELECT * FROM department INNER JOIN program ON department.dept_id = program.dept_id WHERE program.program_id = ?", [id]);
+    const [rows] = await pool.query("SELECT department.dept_id, department.NAME FROM department INNER JOIN program ON department.dept_id = program.dept_id WHERE program.program_id = ?", [id]);
     return rows[0];
 }
 
@@ -101,13 +107,20 @@ export async function updateApplication(studentID, programID, studentType) {
     return result.insertId;
 }
 
+// Fetching all applications
+export async function getApplications(applicationStatus) {
+    const [rows] = await pool.query("SELECT s.student_id, s.first_name, s.last_name, s.middle_name, s.suffix, s.email_address, s.contact_number, a.application_date, p.name, a.program_id, a.student_type FROM student s JOIN application a ON s.student_id = a.student_id JOIN program p ON a.program_id = p.program_id WHERE a.application_status = ?", 
+                            [applicationStatus]);
+    return rows;
+}
+
 // fetching all departments
 export async function getDepartments() {
     const [rows] = await pool.query("SELECT `dept_id`, `NAME` FROM `department`");
     return rows;
 }
 
-// fetching all departments
+// fetching all programs
 export async function getProgram(dept_id) {
     const [rows] = await pool.query("SELECT `program_id`, `name` FROM `program` WHERE dept_id = ?", [dept_id]);
     return rows;
