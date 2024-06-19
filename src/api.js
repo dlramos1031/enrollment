@@ -24,6 +24,50 @@ export const fetchStudentById = async (id) => {
     }
 };
 
+// Fetch current student profile
+export const fetchStudentProfile = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/studentcurrent`, { withCredentials: true });
+        const form = {
+            firstName: response.data.first_name,
+            middleName: response.data.middle_name,
+            lastName: response.data.last_name,
+            suffix: response.data.suffix,
+            dateOfBirth: response.data.date_of_birth,
+            gender: response.data.gender,
+            email: response.data.email_address,
+            contactNumber: response.data.contact_number,
+            homeAddress: response.data.home_address,
+            degreeProgram: response.data.program_id,
+            studentType: response.data.student_type
+        };
+        return form;
+    } catch (error) {
+        console.error(`Error fetching student:`, error);
+        throw error;
+    }
+};
+
+// Checks if username already exists
+export const usernameExists = async (username) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/user/exists/username/${username}`);
+        return response.data.exists;
+    } catch (error) {
+        console.error('Error validating username', error);
+    }
+}
+
+// Checks if email already exists
+export const userEmailExists = async (email) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/user/exists/email/${email}`);
+        return response.data.exists;
+    } catch (error) {
+        console.error('Error validating email', error);
+    }
+}
+
 // Register a new user
 export const registerUser = async (email, username, password, role) => {
     try {
@@ -57,6 +101,17 @@ export const fetchUserProfile = async () => {
     }
 };
 
+// Fetch user role
+export const fetchRole = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/profile/role`, { withCredentials: true });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+        throw error;
+    }
+};
+
 // Logout user
 export const logoutUser = async () => {
     try {
@@ -64,6 +119,55 @@ export const logoutUser = async () => {
         return response.data;
     } catch (error) {
         console.error('Error logging out:', error);
+        throw error;
+    }
+};
+
+// Fetch Departments
+export const fetchDepartments = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/department`, { withCredentials: true });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching departments:', error);
+        throw error;
+    }
+};
+
+// Fetch Programs of a specific Department
+export const fetchPrograms = async (dept_id) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/program/${dept_id}`, { withCredentials: true });
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching programs with Department ID ${dept_id}:`, error);
+        throw error;
+    }
+};
+
+// Submit application
+export const submitApplication = async (formData) => {
+    try {
+        const studentForm = {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            middleName: formData.middleName,
+            suffix: formData.suffix,
+            dateOfBirth: formData.dateOfBirth,
+            gender: formData.gender,
+            contactNumber: formData.contactNumber,
+            email: formData.email,
+            homeAddress: formData.homeAddress
+        };
+        const applicationForm = {
+            programID: formData.degreeProgram,
+            studentType: formData.studentType
+        };
+        console.log("Showing application form: ", applicationForm);
+        await axios.post(`${API_BASE_URL}/create/student`, studentForm, { withCredentials: true });
+        await axios.post(`${API_BASE_URL}/create/application`, applicationForm, { withCredentials: true });
+    } catch (error) {
+        console.error(`Error submitting application:`, error);
         throw error;
     }
 };

@@ -4,7 +4,7 @@ import cors from 'cors';
 import session from 'express-session';
 import MySQLStore from 'express-mysql-session';
 import bcrypt from 'bcrypt';
-import { getStudent, getStudents, createUser, getUserByUsername } from './database.js';
+import { getStudent, getStudents, createUser, getUserByUsername, createStudent, getUserByEmail, getDepartments, getProgram, createApplication, getStudentIDByUserID, getFormByUsername, getDepartmentByProgram } from './database.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -70,6 +70,54 @@ app.get('/api/student/:id', async (req, res) => {
     }
 });
 
+// Route for fetching a student with specific ID
+app.get('/api/studentcurrent', async (req, res) => {
+    try {
+        const student = await getFormByUsername(req.session.username);
+        const department = await getDepartmentByProgram(student.program_id);
+        res.json({ ...student, ...department });
+    } catch (error) {
+        console.error('Error fetching student:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Route for fetching a user with specific username
+app.get('/api/user/:username', async (req, res) => {
+    try {
+        const username = req.params.username;
+        const user = await getUserByUsername(username);
+        res.json(user);
+    } catch (error) {
+        console.error('Error fetching user:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Route for checking if user exists
+app.get('/api/user/exists/username/:username', async (req, res) => {
+    try {
+        const username = req.params.username;
+        const user = await getUserByUsername(username);
+        res.json({exists: !(!user)}); // Pasagdaan kay nigana man
+    } catch (error) {
+        console.error('Error fetching user:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Route for checking if user exists
+app.get('/api/user/exists/email/:email', async (req, res) => {
+    try {
+        const email = req.params.email;
+        const user = await getUserByEmail(email);
+        res.json({exists: !(!user)}); // Pasagdaan kay nigana man
+    } catch (error) {
+        console.error('Error fetching user:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 // Route for user registration
 app.post('/api/register', async (req, res) => {
     const { email, username, password, role } = req.body;
@@ -78,7 +126,7 @@ app.post('/api/register', async (req, res) => {
         res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
         console.error('Error registering user:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ error: req.body });
     }
 });
 
@@ -111,6 +159,15 @@ app.get('/api/profile', (req, res) => {
     }
 });
 
+// Route for fetching user role
+app.get('/api/profile/role', (req, res) => {
+    if (req.session.username) {
+        res.json({ role: req.session.role });
+    } else {
+        res.status(401).json({ error: 'Unauthorized' });
+    }
+});
+
 // Route for user logout
 app.post('/api/logout', (req, res) => {
     req.session.destroy(err => {
@@ -120,6 +177,57 @@ app.post('/api/logout', (req, res) => {
         res.clearCookie('session_cookie_name');
         res.json({ message: 'Logout successful' });
     });
+});
+
+// Route fot student profile creation
+app.post('/api/create/student', async (req, res) => {
+    const { firstName, middleName, lastName, suffix, dateOfBirth, gender, contactNumber, email, homeAddress } = req.body;
+    const user = await getUserByUsername(req.session.username);
+    try {
+        await createStudent(firstName, middleName, lastName, suffix, dateOfBirth, gender, contactNumber, email, homeAddress, user.user_id);
+        res.status(201).json({ message: 'Student profile created successfully' });
+    } catch (error) {
+        console.error('Error creating profile:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Route for student applicatoin creation
+app.post('/api/create/application', async (req, res) => {
+    const { programID, studentType } = req.body;
+    const user = await getUserByUsername(req.session.username);
+    try {
+        const studentID = await getStudentIDByUserID(user.user_id);
+        console.log("Showing Student ID: ", studentID);
+        await createApplication(studentID.student_id, programID, studentType);
+        res.status(201).json({ message: 'Student application created successfully' });
+    } catch (error) {
+        console.error('Error creating application:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Route for fetching departments
+app.get('/api/department', async (req, res) => {
+    try {
+        const departments = await getDepartments();
+        res.json(departments);
+    } catch (error) {
+        console.error('Error fetching departments:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Route for fetching programs on a specific department
+app.get('/api/program/:dept_id', async (req, res) => {
+    try {
+        const dept_id = req.params.dept_id;
+        const program = await getProgram(dept_id);
+        res.json(program);
+    } catch (error) {
+        console.error('Error fetching programs:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
 });
 
 // Start the express server

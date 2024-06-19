@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
 import { fetchUserProfile, logoutUser } from "../api";
-import { useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
+import { Sidebar, SidebarItem } from "./Sidebar";
+import { CircleUserRound, Home, LogOut, StickyNote } from "lucide-react";
 
 const Dashboard = () => {
-  const [profile, setProfile] = useState(null);
+  const [profile, setProfile] = useState({
+    role: -1
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -15,8 +19,9 @@ const Dashboard = () => {
         navigate("/login");
       }
     };
+    console.log("Using use effect on Dashboard");
     loadProfile();
-  }, []);
+  }, [navigate]);
 
   const handleLogout = async () => {
     await logoutUser();
@@ -24,23 +29,21 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="p-6 bg-white rounded shadow-md">
-        <h2 className="text-2xl mb-4">Dashboard</h2>
-        {profile && (
-          <div>
-            <p>Email Address: {profile.email}</p>
-            <p>Username: {profile.username}</p>
-            <p>Role: {profile.role}</p>
-          </div>
-        )}
-        <button
-          onClick={handleLogout}
-          className="w-full p-2 mt-4 bg-red-500 text-white rounded"
-        >
-          Logout
-        </button>
-      </div>
+    <div className="flex">
+      <Sidebar>
+        <SidebarItem icon={<Home size={20} />} text="Home" alert to="/dashboard/" />
+        {profile.role === 0 && <SidebarItem icon={<StickyNote size={20} />} text="Application Form" alert to="/dashboard/appform" />}
+        {profile.role === 1 && <SidebarItem icon={<CircleUserRound size={20} />} text="Profile" alert to="/dashboard/profile" />}
+        {profile.role === 1 && <SidebarItem icon={<StickyNote size={20} />} text="Application" alert to="/dashboard/application" />}
+        {profile.role === 1 && <SidebarItem icon={<StickyNote size={20} />} text="Enrollment" alert to="/dashboard/enrollment" />}
+        {profile.role >= 2 && <SidebarItem icon={<StickyNote size={20} />} text="Application List" alert to="/dashboard/applist" />}
+        {profile.role >= 2 && <SidebarItem icon={<StickyNote size={20} />} text="Student Profile List" alert to="/dashboard/proflist" />}
+        <hr className="my-3" />
+        <SidebarItem icon={<LogOut size={20} />} text="Log Out" to="/login" onClick={handleLogout} />
+      </Sidebar>
+      <main className="flex-1 p-6">
+        <Outlet />
+      </main>
     </div>
   );
 };

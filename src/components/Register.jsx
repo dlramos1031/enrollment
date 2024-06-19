@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { registerUser } from "../api";
+import { registerUser, userEmailExists, usernameExists } from "../api";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -12,24 +12,39 @@ const Register = () => {
     confirmPassword: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [success, setSuccess] = useState(null);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setError(null);
+    setSuccess(null);
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleRegister = async (e) => {
     e.preventDefault();
+
     if (formData.email === "" || formData.username === "" || formData.password === "") {
-      setError("Fill up the empty fields.");
+      setError("Fill up the empty fields. ");
       return;
     }
+
+    if (await userEmailExists(formData.email)) {
+      setError("Email address already used. ");
+      return;
+    }
+
+    if (await usernameExists(formData.username)) {
+      setError("Username already exists. ");
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match.");
+      setError("Passwords do not match. ");
       return;
     }
+
     try {
       await registerUser(
         formData.email,
@@ -37,7 +52,7 @@ const Register = () => {
         formData.password,
         formData.role
       );
-      navigate("/login");
+      setSuccess("User account registered successfully. ");
     } catch (error) {
       setError("Error registering user");
     }
@@ -57,6 +72,11 @@ const Register = () => {
       {error && (
         <div className="my-4 p-2 rounded-md text-red-800 bg-red-200">
           {error}
+        </div>
+      )}
+      {success && (
+        <div className="my-4 p-2 rounded-md text-green-800 bg-green-400">
+          {success}
         </div>
       )}
       <form onSubmit={handleRegister} className="mb-4">
