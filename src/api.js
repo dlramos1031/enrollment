@@ -38,6 +38,7 @@ export const fetchStudentProfile = async () => {
             email: response.data.email_address,
             contactNumber: response.data.contact_number,
             homeAddress: response.data.home_address,
+            collegeDepartment: response.data.dept_id,
             degreeProgram: response.data.program_id,
             studentType: response.data.student_type
         };

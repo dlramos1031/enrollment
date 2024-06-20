@@ -32,10 +32,11 @@ function AppForm() {
     studentType: "",
   });
   const appStatuses = [
-    "Waiting for Admin Staff approval", 
-    "Admin Staff approved / Pending Dept. Head approval", 
-    "Dept. Head approved / Pending Registrar approval", 
-    "Registrar approved /  Application accepted"];
+    "Waiting for Admin Staff approval",
+    "Admin Staff approved / Pending Dept. Head approval",
+    "Dept. Head approved / Pending Registrar approval",
+    "Registrar approved /  Application accepted",
+  ];
 
   useEffect(() => {
     const fetchDept = async () => {
@@ -80,7 +81,6 @@ function AppForm() {
       try {
         const sessionStatus = await fetchSessionApplicationStatus();
         setStatus(sessionStatus.application_status);
-        console.log("New Status: ", status);
       } catch (error) {
         console.error("Error fetching application status:", error);
       }
@@ -444,9 +444,7 @@ function AppForm() {
           <h3 className="text-xl font-semibold mb-6 text-gray-800">
             Application Status
           </h3>
-          <p>
-            {appStatuses[status]}
-          </p>
+          <p>{!status && status !== 0 ? ("Not yet filled the form") : (appStatuses[status])}</p>
         </div>
       </div>
     </div>
