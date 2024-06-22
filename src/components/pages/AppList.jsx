@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { fetchApplications } from "../../api";
+import { fetchApplications, setApplicationStatus } from "../../api";
 import { EllipsisVertical, Mail, Phone } from "lucide-react";
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/react';
 import "../../App.css";
@@ -27,7 +27,7 @@ function AppList() {
 
   const handleAccept = async (id) => {
     try {
-      console.log(id);
+      await setApplicationStatus(id);
     } catch (error) {
       console.error("Error accepting application:", error);
     }
@@ -104,7 +104,7 @@ function AppList() {
                         onClick={() => handleAccept(app.student_id)}
                         className="px-4 py-2 bg-green-600 text-white font-semibold rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                       >
-                        Confirm
+                        Approve
                       </button>
                       <Menu as="div" className="relative inline-block text-left">
                         <MenuButton className="p-2 rounded-full hover:bg-gray-100 focus:outline-none">

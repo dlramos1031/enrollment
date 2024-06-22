@@ -112,7 +112,7 @@ export const fetchRole = async () => {
         throw error;
     }
 };
-
+    
 // Logout user
 export const logoutUser = async () => {
     try {
@@ -147,6 +147,17 @@ export const fetchPrograms = async (dept_id) => {
 };
 
 // Fetch Programs of a specific Department
+export const fetchProgram = async (program_id) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/program/progid/${program_id}`, { withCredentials: true });
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching programs with Department ID ${program_id}:`, error);
+        throw error;
+    }
+};
+
+// Fetch applications
 export const fetchApplications = async () => {
     try {
         const response = await axios.get(`${API_BASE_URL}/application`, { withCredentials: true });
@@ -196,3 +207,22 @@ export const submitApplication = async (formData) => {
         throw error;
     }
 };
+
+export const setApplicationStatus = async (studentID) => {
+    try {
+        await axios.post(`${API_BASE_URL}/application/status/update`, { studentID }, { withCredentials: true });
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+// Fetch Application Status using Student ID
+export const fetchAdmissionDetails = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/application/details`, { withCredentials: true });
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching applications:`, error);
+        throw error;
+    }
+}

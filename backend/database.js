@@ -27,7 +27,7 @@ export async function getUsername(user) {
 // fetching student with specific id
 export async function getStudent(id) {
     const [rows] = await pool.query("SELECT * FROM student WHERE student_id = ?", [id]);
-    return rows;
+    return rows[0];
 }
 
 // fetching student id with specific user id
@@ -43,14 +43,14 @@ export async function getFormByUsername(username) {
 }
 
 // fetching application status using student id
-export async function getAppStatusByUsername(username) {
-    const [rows] = await pool.query("SELECT a.`application_status` FROM `application` a JOIN `student` s ON a.`student_id` = s.`student_id` JOIN `user` u ON s.`user_id` = u.`user_id` WHERE u.`username` = ?", [username]);
+export async function getAppStatusByUserID(id) {
+    const [rows] = await pool.query("SELECT a.`application_status` FROM `application` a JOIN `student` s ON a.`student_id` = s.`student_id` WHERE s.`user_id` = ?", [id]);
     return rows[0];
 }
 
 // Checking if user has existing student profile
-export async function hasProfile(username) {
-    const [rows] = await pool.query("SELECT * FROM `student` s INNER JOIN `user` u ON s.user_id = u.user_id WHERE u.username = ?", [username]);
+export async function hasProfile(id) {
+    const [rows] = await pool.query("SELECT * FROM `student` WHERE user_id = ?", [id]);
     return rows.length;
 }
 
@@ -121,8 +121,43 @@ export async function getDepartments() {
 }
 
 // fetching all programs
-export async function getProgram(dept_id) {
-    const [rows] = await pool.query("SELECT `program_id`, `name` FROM `program` WHERE dept_id = ?", [dept_id]);
+export async function getPrograms(dept_id) {
+    const [rows] = await pool.query("SELECT * FROM `program` WHERE dept_id = ?", [dept_id]);
     return rows;
 }
 
+// fetching all programs
+export async function getProgram(id) {
+    const [rows] = await pool.query("SELECT * FROM `program` WHERE program_id = ?", [id]);
+    return rows[0];
+}
+
+// Updating application status
+export async function setAppStatus(student_id, status) {
+    const result = await pool.query("UPDATE `application` SET `application_status` = ? WHERE `student_id` = ?", [status, student_id]);
+    return result;
+}
+
+// Updating student status
+export async function setStudentStatus(student_id, status) {
+    const result = await pool.query("UPDATE `student` SET `status` = ? WHERE `student_id` = ?", [status, student_id]);
+    return result;
+}
+
+// Fetching student status
+export async function getStudentStatus(id) {
+    const [rows] = await pool.query("SELECT `status` FROM `student` WHERE `user_id` = ?", [id]);
+    return rows[0];
+}
+
+// Fetching admission details
+export async function getAdmissionDetails(id) {
+    const [rows] = await pool.query("SELECT `program_id`, `student_type` FROM `application` WHERE `student_id` = ?", [id]);
+    return rows[0];
+}
+
+// Promoting Guest to Student
+export async function roleToStudent(user_id) {
+    const result = await pool.query("UPDATE `user` SET `role` = 1 WHERE `user_id` = ?", [user_id]);
+    return result;
+}

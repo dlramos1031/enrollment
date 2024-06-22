@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 import { fetchUserProfile } from "../../api";
 
 const Home = () => {
-  const [profile, setProfile] = useState(fetchUserProfile());
+  const [profile, setProfile] = useState({});
   const navigate = useNavigate();
   const roles = ['Guest', 'Student', 'Admission Staff', 'Department Head', 'Registrar', 'Faculty Staff'];
+  const statuses = ['Not admitted', 'Pending Application', 'Admitted / Not Enrolled', 'Pending Enrollment', 'Enrolled'];
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -30,7 +31,8 @@ const Home = () => {
       </h2>
       <div className="text-lg text-gray-700">
         <p>
-          Role: <span className="text-green-700 underline">{roles[profile.role]}</span>
+          Role: <span className="text-green-700 underline">{roles[profile.role]}</span> <br />
+          Status: <span className="text-green-700 underline">{statuses[profile.student_status]}</span>
         </p>
       </div>
       {profile.role === 0 ? (

@@ -7,6 +7,7 @@ import Dashboard from "./components/Dashboard";
 import Home from "./components/pages/Home";
 import AppForm from "./components/pages/AppForm";
 import AppList from "./components/pages/AppList";
+import EnrollmentForm from "./components/pages/EnrollmentForm";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="" element={<Home />} />
           <Route path="appform" element={<AppForm />} />
           <Route path="applist" element={<AppList />} />
+          <Route path="enrollment" element={<EnrollmentForm />} />
         </Route>
       </Routes>
     </Router>

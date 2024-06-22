@@ -4,7 +4,15 @@ import cors from 'cors';
 import session from 'express-session';
 import MySQLStore from 'express-mysql-session';
 import bcrypt from 'bcrypt';
-import { getStudent, getStudents, createUser, getUserByUsername, createStudent, getUserByEmail, getDepartments, getProgram, createApplication, getStudentIDByUserID, getFormByUsername, getDepartmentByProgram, hasProfile, updateStudent, updateApplication, getApplications, getAppStatusByUsername } from './database.js';
+import { getStudent, getStudents, createUser, getUserByUsername, 
+    createStudent, getUserByEmail, getDepartments, getProgram, 
+    createApplication, getStudentIDByUserID, getFormByUsername, 
+    getDepartmentByProgram, hasProfile, updateStudent, 
+    updateApplication, getApplications, setAppStatus, 
+    setStudentStatus, roleToStudent, getAppStatusByUserID, 
+    getStudentStatus,
+    getAdmissionDetails,
+    getPrograms} from './database.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -75,11 +83,9 @@ app.get('/api/student/:id', async (req, res) => {
 // Route for fetching a student with specific ID
 app.get('/api/studentcurrent', async (req, res) => {
     try {
-        if (await hasProfile(req.session.username)) {
-            console.log("Current session username: ", req.session.username);
+        if (await hasProfile(req.session.user_id)) {
             const student = await getFormByUsername(req.session.username);
             const department = await getDepartmentByProgram(student.program_id);
-            console.log("Fetched form: ", { ...student, ...department });
             res.json({ ...student, ...department });
         } else {
             res.json({ error: 'Profile not found.' });
@@ -128,8 +134,7 @@ app.get('/api/user/exists/email/:email', async (req, res) => {
 
 app.get('/api/student/exists/session', async (req, res) => {
     try {
-        const username = req.session.username;
-        const rows = await hasProfile(username);
+        const rows = await hasProfile(req.session.user_id);
         res.json({ exists: Boolean(rows) });
     } catch (error) {
         console.error('Error fetching user:', error);
@@ -155,7 +160,7 @@ app.post('/api/login', async (req, res) => {
     try {
         const user = await getUserByUsername(username);
         if (user && await bcrypt.compare(password, user.password)) {
-            req.session.userId = user.id;
+            req.session.user_id = user.user_id;
             req.session.email = user.email;
             req.session.username = user.username;
             req.session.role = user.role;
@@ -170,9 +175,18 @@ app.post('/api/login', async (req, res) => {
 });
 
 // Route for fetching user profile
-app.get('/api/profile', (req, res) => {
-    if (req.session.username) {
-        res.json({ email: req.session.email, username: req.session.username, role: req.session.role });
+app.get('/api/profile', async (req, res) => {
+    if (req.session.user_id) {
+        const status = (hasProfile(req.session.user_id) ? await getStudentStatus(req.session.user_id) : 0);
+        let profile = { 
+            email: req.session.email, 
+            user_id: req.session.user_id, 
+            username: req.session.username, 
+            role: req.session.role,
+            student_status: status.status,
+        };
+
+        res.json(profile);
     } else {
         res.status(401).json({ error: 'Unauthorized' });
     }
@@ -180,7 +194,7 @@ app.get('/api/profile', (req, res) => {
 
 // Route for fetching user role
 app.get('/api/profile/role', (req, res) => {
-    if (req.session.username) {
+    if (req.session.user_id) {
         res.json({ role: req.session.role });
     } else {
         res.status(401).json({ error: 'Unauthorized' });
@@ -201,9 +215,8 @@ app.post('/api/logout', (req, res) => {
 // Route for student profile creation
 app.post('/api/create/student', async (req, res) => {
     const { firstName, middleName, lastName, suffix, dateOfBirth, gender, contactNumber, email, homeAddress } = req.body;
-    const user = await getUserByUsername(req.session.username);
     try {
-        await createStudent(firstName, middleName, lastName, suffix, dateOfBirth, gender, contactNumber, email, homeAddress, user.user_id);
+        await createStudent(firstName, middleName, lastName, suffix, dateOfBirth, gender, contactNumber, email, homeAddress, req.session.user_id);
         res.status(201).json({ message: 'Student profile created successfully' });
     } catch (error) {
         console.error('Error creating profile:', error);
@@ -214,9 +227,8 @@ app.post('/api/create/student', async (req, res) => {
 // Route for student application creation
 app.post('/api/create/application', async (req, res) => {
     const { programID, studentType } = req.body;
-    const user = await getUserByUsername(req.session.username);
     try {
-        const studentID = await getStudentIDByUserID(user.user_id);
+        const studentID = await getStudentIDByUserID(req.session.user_id);
         await createApplication(studentID.student_id, programID, studentType);
         res.status(201).json({ message: 'Student application created successfully' });
     } catch (error) {
@@ -228,9 +240,8 @@ app.post('/api/create/application', async (req, res) => {
 // Route for student profile update
 app.post('/api/update/student', async (req, res) => {
     const { firstName, middleName, lastName, suffix, dateOfBirth, gender, contactNumber, email, homeAddress } = req.body;
-    const user = await getUserByUsername(req.session.username);
     try {
-        await updateStudent(firstName, middleName, lastName, suffix, dateOfBirth, gender, contactNumber, email, homeAddress, user.user_id);
+        await updateStudent(firstName, middleName, lastName, suffix, dateOfBirth, gender, contactNumber, email, homeAddress, req.session.user_id);
         res.status(201).json({ message: 'Student profile updated successfully' });
     } catch (error) {
         console.error('Error creating profile:', error);
@@ -241,9 +252,8 @@ app.post('/api/update/student', async (req, res) => {
 // Route for student applicatoin update
 app.post('/api/update/application', async (req, res) => {
     const { programID, studentType } = req.body;
-    const user = await getUserByUsername(req.session.username);
     try {
-        const studentID = await getStudentIDByUserID(user.user_id);
+        const studentID = await getStudentIDByUserID(req.session.user_id);
         await updateApplication(studentID.student_id, programID, studentType);
         res.status(201).json({ message: 'Student application updated successfully' });
     } catch (error) {
@@ -278,10 +288,51 @@ app.get('/api/application', async (req, res) => {
 // Route for fetching application status using session user id
 app.get('/api/application/status/session', async (req, res) => {
     try {
-        const result = await getAppStatusByUsername(req.session.username);
+        const result = await getAppStatusByUserID(req.session.user_id);
         res.json(result);
     } catch (error) {
         console.error('Error fetching application status:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Route for updating application and student status
+app.post('/api/application/status/update', async (req, res) => {
+    try {
+        const { studentID } = req.body;
+        const student = await getStudent(studentID);
+        let status = 0;
+        switch (req.session.role) {
+            case 2:         // Admin staff role
+                status = 1; // Admin Staff approved / Pending Dept. Head approval
+                await setStudentStatus(studentID, 1);   // Pending Application
+                await roleToStudent(student.user_id);   // From Guest to Student
+                break;
+            case 3:         // Dept. Head role
+                status = 2; // Dept. Head approved / Pending Registrar approval
+                break;
+            case 4:         // Registrar role
+                status = 3; // Registrar approved /  Application accepted
+                await setStudentStatus(studentID, 2); // Admitted / Not Enrolled
+                break;
+        }
+        await setAppStatus(studentID, status);
+    } catch (error) {
+        console.error('Error fetching application status:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.get('/api/application/details', async (req, res) => {
+    try {
+        const student_id = await getStudentIDByUserID(req.session.user_id);
+        const admission = await getAdmissionDetails(student_id.student_id);
+        console.log("user iD: ", req.session.user_id);
+        console.log("student iD: ", student_id);
+        console.log("Admission details: ", admission);
+        res.json(admission);
+    } catch (error) {
+        console.error('Error fetching admission details:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
@@ -301,7 +352,21 @@ app.get('/api/department', async (req, res) => {
 app.get('/api/program/:dept_id', async (req, res) => {
     try {
         const dept_id = req.params.dept_id;
-        const program = await getProgram(dept_id);
+        const program = await getPrograms(dept_id);
+        res.json(program);
+    } catch (error) {
+        console.error('Error fetching programs:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Route for fetching programs on a specific department
+app.get('/api/program/progid/:id', async (req, res) => {
+    try {
+        const program_id = req.params.id;
+        const program = await getProgram(program_id);
+        console.log("Program ID: ", program_id);
+        console.log("Program: ", program);
         res.json(program);
     } catch (error) {
         console.error('Error fetching programs:', error);
