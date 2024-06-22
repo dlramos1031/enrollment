@@ -1,7 +1,7 @@
 function EnrollmentStep2({ formData }) {
   return (
-    <div>
-      <h2 className="text-2xl font-semibold mb-4">Year Level</h2>
+    <div className="p-6 bg-sky-200 rounded-md shadow-md">
+      <h2 className="text-xl font-semibold mb-4">Year Level</h2>
       <div>
         <label className="block text-sm font-medium text-gray-700">Year Level</label>
         <input

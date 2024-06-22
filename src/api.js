@@ -157,6 +157,39 @@ export const fetchProgram = async (program_id) => {
     }
 };
 
+// Fetch Sections
+export const fetchSection = async (program_id) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/section/progid/${program_id}`, { withCredentials: true });
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching sections in program ID ${program_id}:`, error);
+        throw error;
+    }
+};
+
+// Fetch Sections
+export const fetchSectionCount = async (section_id) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/section/sectid/${section_id}/count`, { withCredentials: true });
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching section ${section_id}:`, error);
+        throw error;
+    }
+};
+
+// Fetch Subjects on a section
+export const fetchSubjects = async (section_id) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/subjects/sectid/${section_id}`, { withCredentials: true });
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching section ${section_id}:`, error);
+        throw error;
+    }
+};
+
 // Fetch applications
 export const fetchApplications = async () => {
     try {

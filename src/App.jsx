@@ -11,6 +11,8 @@ import EnrollmentForm from "./components/pages/EnrollmentForm";
 
 function App() {
   return (
+    <>
+    <div className="background"></div>
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
@@ -24,6 +26,7 @@ function App() {
         </Route>
       </Routes>
     </Router>
+    </>
   );
 }
 

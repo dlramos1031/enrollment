@@ -132,6 +132,24 @@ export async function getProgram(id) {
     return rows[0];
 }
 
+// fetching sections in a program
+export async function getSection(id) {
+    const [rows] = await pool.query("SELECT `section_id`, `section_name` FROM `section` WHERE `program_id` = ?", [id]);
+    return rows;
+}
+
+// fetching sections in a program
+export async function getSectionLength(id) {
+    const [rows] = await pool.query("SELECT * FROM `enrollment` e JOIN `section_subject` s ON e.section_subject_id = s.section_subject_id WHERE `section_id` = ?", [id]);
+    return rows.length;
+}
+
+// fetching subjects in a section
+export async function getSubjects(id) {
+    const [rows] = await pool.query("SELECT s.`subject_code`, s.`title`, s.`units`, ss.`schedule`, ss.`room`, i.`first_name`, i.`last_name` FROM `section_subject` ss JOIN `instructors` i ON ss.`instructor_id` = i.`instructor_id`JOIN `subjects` s ON ss.`subject_id` = s.`subject_id` WHERE ss.`section_id` = ?", [id]);
+    return rows;
+}
+
 // Updating application status
 export async function setAppStatus(student_id, status) {
     const result = await pool.query("UPDATE `application` SET `application_status` = ? WHERE `student_id` = ?", [status, student_id]);

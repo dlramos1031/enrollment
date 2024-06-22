@@ -1,17 +1,18 @@
-function EnrollmentStep3({ formData, setFormData }) {
-  const sections = [
-    { id: "A", count: 3 },
-    { id: "B", count: 5 },
-    { id: "C", count: 2 },
-  ];
+import { useEffect } from "react";
+
+function EnrollmentStep3({ formData, setFormData, sections, sectionCount, currentStep, setEnableNext }) {
+
+  useEffect(() => {
+    setEnableNext(formData.section);
+  }, [currentStep, formData.section]);
 
   const handleSectionChange = (e) => {
     setFormData({ ...formData, section: e.target.value });
   };
 
   return (
-    <div>
-      <h2 className="text-2xl font-semibold mb-4">Section Selection</h2>
+    <div className="p-6 bg-sky-200 rounded-md shadow-md">
+      <h2 className="text-xl font-semibold mb-4">Select Section</h2>
       <div>
         <label className="block text-sm font-medium text-gray-700">Section</label>
         <select
@@ -21,8 +22,8 @@ function EnrollmentStep3({ formData, setFormData }) {
         >
           <option value="">Select Section</option>
           {sections.map((section) => (
-            <option key={section.id} value={section.id}>
-              {section.id} - {section.count}/5 students
+            <option key={section.section_id} value={section.section_id}>
+              {section.section_name} - {sectionCount}/5 students
             </option>
           ))}
         </select>

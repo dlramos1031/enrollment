@@ -1,9 +1,4 @@
-function EnrollmentStep4({ formData, setFormData }) {
-  const subjects = [
-    { code: "SUBJ101", name: "Subject 1", units: 3, schedule: "MWF 9-10", instructor: "Dr. A" },
-    { code: "SUBJ102", name: "Subject 2", units: 4, schedule: "TTh 10-12", instructor: "Prof. B" },
-    { code: "SUBJ103", name: "Subject 3", units: 2, schedule: "MW 1-2", instructor: "Dr. C" },
-  ];
+function EnrollmentStep4({ formData, setFormData, subjects }) {
 
   const handleSubjectChange = (e) => {
     const { value, checked } = e.target;
@@ -15,23 +10,22 @@ function EnrollmentStep4({ formData, setFormData }) {
   };
 
   return (
-    <div>
-      <h2 className="text-2xl font-semibold mb-4">Subject Selection</h2>
+    <div className="p-6 bg-sky-200 rounded-md shadow-md">
+      <h2 className="text-xl font-semibold mb-4">Subject Selection</h2>
       <div>
         {subjects.map((subject) => (
-          <div key={subject.code} className="flex items-center mb-2">
+          <div key={subject.subject_id} className="flex items-center mb-2">
             <input
               type="checkbox"
               value={subject.code}
-              checked={formData.subjects.includes(subject.code)}
               onChange={handleSubjectChange}
               className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
             />
             <label className="ml-2 text-sm text-gray-700">
-              {subject.code} - {subject.name} ({subject.units} units)
+              {subject.subject_code} - {subject.title} ({subject.units} units)
               <br />
               <span className="text-xs text-gray-500">
-                {subject.schedule}, {subject.instructor}
+                {subject.schedule}, {subject.first_name + " " + subject.last_name}
               </span>
             </label>
           </div>

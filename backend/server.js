@@ -12,7 +12,10 @@ import { getStudent, getStudents, createUser, getUserByUsername,
     setStudentStatus, roleToStudent, getAppStatusByUserID, 
     getStudentStatus,
     getAdmissionDetails,
-    getPrograms} from './database.js';
+    getPrograms,
+    getSection,
+    getSectionLength,
+    getSubjects} from './database.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -365,9 +368,48 @@ app.get('/api/program/progid/:id', async (req, res) => {
     try {
         const program_id = req.params.id;
         const program = await getProgram(program_id);
-        console.log("Program ID: ", program_id);
-        console.log("Program: ", program);
         res.json(program);
+    } catch (error) {
+        console.error('Error fetching programs:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Route for fetching sections on a specific program
+app.get('/api/section/progid/:id', async (req, res) => {
+    try {
+        const program_id = req.params.id;
+        const section = await getSection(program_id);
+        console.log("Program ID: ", program_id);
+        console.log("Sections: ", section);
+        res.json(section);
+    } catch (error) {
+        console.error('Error fetching programs:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Route for getting student count on a section
+app.get('/api/section/sectid/:id/count', async (req, res) => {
+    try {
+        const section_id = req.params.id;
+        const section = await getSectionLength(section_id);
+        console.log("Section count: ", section);
+        res.json(section);
+    } catch (error) {
+        console.error('Error fetching programs:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Route for getting student count on a section
+app.get('/api/subjects/sectid/:id', async (req, res) => {
+    try {
+        const section_id = req.params.id;
+        const subjects = await getSubjects(section_id);
+        console.log("Section ID: ", section_id);
+        console.log("Section subs: ", subjects);
+        res.json(subjects);
     } catch (error) {
         console.error('Error fetching programs:', error);
         res.status(500).json({ error: 'Internal Server Error' });
