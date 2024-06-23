@@ -10,12 +10,10 @@ import { getStudent, getStudents, createUser, getUserByUsername,
     getDepartmentByProgram, hasProfile, updateStudent, 
     updateApplication, getApplications, setAppStatus, 
     setStudentStatus, roleToStudent, getAppStatusByUserID, 
-    getStudentStatus,
-    getAdmissionDetails,
-    getPrograms,
-    getSection,
-    getSectionLength,
-    getSubjects} from './database.js';
+    getStudentStatus, getAdmissionDetails, getPrograms,
+    getSection, getSectionLength, getSubjects, enrollSubject,
+    hasEnrolled, getEnrollment, getSectionBySecID, 
+    getEnrollmentList, acceptEnrollment } from './database.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -180,7 +178,7 @@ app.post('/api/login', async (req, res) => {
 // Route for fetching user profile
 app.get('/api/profile', async (req, res) => {
     if (req.session.user_id) {
-        const status = (hasProfile(req.session.user_id) ? await getStudentStatus(req.session.user_id) : 0);
+        const status = (await hasProfile(req.session.user_id) ? await getStudentStatus(req.session.user_id) : 0);
         let profile = { 
             email: req.session.email, 
             user_id: req.session.user_id, 
@@ -330,9 +328,6 @@ app.get('/api/application/details', async (req, res) => {
     try {
         const student_id = await getStudentIDByUserID(req.session.user_id);
         const admission = await getAdmissionDetails(student_id.student_id);
-        console.log("user iD: ", req.session.user_id);
-        console.log("student iD: ", student_id);
-        console.log("Admission details: ", admission);
         res.json(admission);
     } catch (error) {
         console.error('Error fetching admission details:', error);
@@ -380,8 +375,18 @@ app.get('/api/section/progid/:id', async (req, res) => {
     try {
         const program_id = req.params.id;
         const section = await getSection(program_id);
-        console.log("Program ID: ", program_id);
-        console.log("Sections: ", section);
+        res.json(section);
+    } catch (error) {
+        console.error('Error fetching programs:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Route for getting section
+app.get('/api/section/sectid/:id', async (req, res) => {
+    try {
+        const section_id = req.params.id;
+        const section = await getSectionBySecID(section_id);
         res.json(section);
     } catch (error) {
         console.error('Error fetching programs:', error);
@@ -394,7 +399,6 @@ app.get('/api/section/sectid/:id/count', async (req, res) => {
     try {
         const section_id = req.params.id;
         const section = await getSectionLength(section_id);
-        console.log("Section count: ", section);
         res.json(section);
     } catch (error) {
         console.error('Error fetching programs:', error);
@@ -407,11 +411,74 @@ app.get('/api/subjects/sectid/:id', async (req, res) => {
     try {
         const section_id = req.params.id;
         const subjects = await getSubjects(section_id);
-        console.log("Section ID: ", section_id);
-        console.log("Section subs: ", subjects);
         res.json(subjects);
     } catch (error) {
         console.error('Error fetching programs:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Route for enrolling subjects
+app.post('/api/enrollment/enroll', async (req, res) => {
+    try {
+        const { subjects } = req.body;
+        const studentID = await getStudentIDByUserID(req.session.user_id);
+
+        for (const subjectID of subjects) {
+            await enrollSubject(subjectID, studentID.student_id);
+        }
+
+        await setStudentStatus(studentID.student_id, 3);
+
+        res.status(200).json({ message: 'Enrollment successful' });
+    } catch (error) {
+        console.error('Error enrolling subjects:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Route for enrolling subjects
+app.get('/api/enrollment/enrolled', async (req, res) => {
+    try {
+        const studentID = await getStudentIDByUserID(req.session.user_id);
+        const amount = await hasEnrolled(studentID.student_id);
+        const has = (amount > 0);
+        res.json(has);
+    } catch (error) {
+        console.error('Error checking enrolling subjects:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Route for enrolling subjects
+app.get('/api/enrollment/list', async (req, res) => {
+    try {
+        const list = await getEnrollmentList();
+        res.json(list);
+    } catch (error) {
+        console.error('Error getting enrollment list:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Route for fetching enrollment information
+app.get('/api/enrollment', async (req, res) => {
+    try {
+        const studentID = await getStudentIDByUserID(req.session.user_id);
+        const info = await getEnrollment(studentID.student_id);
+        res.json(info);
+    } catch (error) {
+        console.error('Error checking enrolling subjects:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Route for accepting enrollment
+app.get('/api/enrollment/accept/:id', async (req, res) => {
+    try {
+        await acceptEnrollment(req.params.id);
+    } catch (error) {
+        console.error('Error accepting enrollment:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });

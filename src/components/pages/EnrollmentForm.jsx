@@ -5,7 +5,10 @@ import EnrollmentStep3 from "./EnrollmentStep3";
 import EnrollmentStep4 from "./EnrollmentStep4";
 import EnrollmentStep5 from "./EnrollmentStep5";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { fetchAdmissionDetails, fetchProgram, fetchSection, fetchSectionCount, fetchSubjects } from "../../api";
+import { enrollSubjects, fetchAdmissionDetails, fetchEnrollment, 
+  fetchProgram, fetchSection, fetchSectionCount, 
+  fetchSubjects, hasEnrolled } from "../../api";
+import { useNavigate } from "react-router-dom";
 
 const steps = [
   EnrollmentStep1,  // Program and Major
@@ -16,8 +19,10 @@ const steps = [
 ];
 
 function EnrollmentForm() {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [enableNext, setEnableNext] = useState(true);
+  const [enableConfirm, setEnableConfirm] = useState(true);
   const [formData, setFormData] = useState({
     program: "Chosen Program", 
     program_id: 0,
@@ -29,6 +34,22 @@ function EnrollmentForm() {
   const [sections, setSections] = useState([]);
   const [sectionCount, setSectionCount] = useState([]);
   const [subjects, setSubjects] = useState([]);
+  const [alreadyEnrolled, setAlreadyEnrolled] = useState(false);
+
+  useEffect(() => {
+    const checkIfEnrolled = async () => {
+      try {
+        const isEnrolled = await hasEnrolled();
+        setAlreadyEnrolled(isEnrolled);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    checkIfEnrolled();
+    if (alreadyEnrolled) {
+      setEnableConfirm(false);
+    }
+  }, [navigate, currentStep, alreadyEnrolled]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,25 +57,34 @@ function EnrollmentForm() {
         const details = await fetchAdmissionDetails();
         const prog = await fetchProgram(details.program_id);
         setFormData({...formData, program: prog.name, program_id: prog.program_id});
+        if (alreadyEnrolled) {
+          const enrolledSubs = await fetchEnrollment();
+          console.log(enrolledSubs);
+          let subs = [];
+          let sec = enrolledSubs[0].section_id;
+          for (const sub of enrolledSubs) {
+            subs.push(sub.section_subject_id);
+          }
+          setFormData({ ...formData, chosenSubs: subs, section: sec });
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
     fetchData();
-  }, []);
+  }, [navigate, currentStep]);
 
   useEffect(() => {
     const fetchSections = async () => {
       try {
         const secs = await fetchSection(formData.program_id);
         setSections(secs);
-        console.log(subjects);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
     fetchSections();
-  }, [currentStep]);
+  }, [navigate, currentStep]);
 
   useEffect(() => {
     const fetchSectionSubjects = async () => {
@@ -66,7 +96,7 @@ function EnrollmentForm() {
       }
     };
     fetchSectionSubjects();
-  }, [currentStep]);
+  }, [currentStep, alreadyEnrolled]);
 
   useEffect(() => {
     const fetchSectionStudentCount = async () => {
@@ -78,7 +108,7 @@ function EnrollmentForm() {
       }
     };
     fetchSectionStudentCount();
-  }, [currentStep]);
+  }, [navigate, currentStep]);
 
   const StepComponent = steps[currentStep];
 
@@ -95,7 +125,11 @@ function EnrollmentForm() {
   };
 
   const handleConfirm = () => {
-    alert("Enrollment completed!");
+    const con = confirm("Confirm your enrollment? ");
+    if (con) {
+      enrollSubjects(formData.chosenSubs);
+      navigate('/dashboard');
+    }
   };
 
   return (
@@ -126,6 +160,7 @@ function EnrollmentForm() {
         ) : (
           <button
             onClick={handleConfirm}
+            disabled={!enableConfirm}
             className="px-4 py-2 bg-green-600 text-white rounded-md shadow-sm hover:bg-green-700 focus:outline-none"
           >
             Confirm
@@ -142,6 +177,11 @@ function EnrollmentForm() {
           />
         ))}
       </div>
+      {alreadyEnrolled && (
+        <div className="my-4 p-2 rounded-md text-red-800 bg-red-200">
+          You have already submitted your enrollment form. Please wait for the College Faculty to confirm your enrollment.
+        </div>
+      )}
     </div>
   );
 }

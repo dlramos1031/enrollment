@@ -5,8 +5,21 @@ import { fetchUserProfile } from "../../api";
 const Home = () => {
   const [profile, setProfile] = useState({});
   const navigate = useNavigate();
-  const roles = ['Guest', 'Student', 'Admission Staff', 'Department Head', 'Registrar', 'Faculty Staff'];
-  const statuses = ['Not admitted', 'Pending Application', 'Admitted / Not Enrolled', 'Pending Enrollment', 'Enrolled'];
+  const roles = [
+    "Guest",
+    "Student",
+    "Admission Staff",
+    "Department Head",
+    "Registrar",
+    "Faculty Staff",
+  ];
+  const statuses = [
+    "Not admitted",
+    "Pending Application",
+    "Admitted / Not Enrolled",
+    "Pending Enrollment",
+    "Enrolled",
+  ];
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -31,9 +44,19 @@ const Home = () => {
       </h2>
       <div className="text-lg text-gray-700">
         <p>
-          Role: <span className="text-green-700 underline">{roles[profile.role]}</span> <br />
-          Status: <span className="text-green-700 underline">{statuses[profile.student_status]}</span>
+          Role:{" "}
+          <span className="text-green-700 underline">
+            {roles[profile.role]}
+          </span>{" "}
         </p>
+        {profile.role === 1 && (
+          <div>
+            Status:{" "}
+            <span className="text-green-700 underline">
+              {statuses[profile.student_status]}
+            </span>
+          </div>
+        )}
       </div>
       {profile.role === 0 ? (
         <div className="text-lg text-gray-700">
@@ -44,16 +67,41 @@ const Home = () => {
               className="text-indigo-600 cursor-pointer hover:underline"
             >
               Application Form
-            </span>.
+            </span>
+            .
           </p>
           <p>
-            After setting up, please wait for the Admission Staff to verify your form.
+            After setting up, please wait for the Admission Staff to verify your
+            form.
           </p>
         </div>
-      ) : (profile.role === 1) ? (
+      ) : profile.role === 1 && profile.student_status === 1 ? (
         <div className="text-lg text-gray-700">
           <p>
-            Your application form has been accepted! Please wait for the full confirmation.
+            Your application form has been accepted! Please wait for the full
+            confirmation.
+          </p>
+        </div>
+      ) : profile.role === 1 && profile.student_status === 2 ? (
+        <div className="text-lg text-gray-700">
+          {/* Add content for role 2 here */}
+          <p>
+            Congratulations! You have officially passed the admission process.
+            Please proceed to the enrollment page.
+          </p>
+        </div>
+      ) : profile.role === 1 && profile.student_status === 3 ? (
+        <div className="text-lg text-gray-700">
+          {/* Add content for role 2 here */}
+          <p>
+            You have submitted your enrollment form. Please wait for the Faculty Staff to confirm your enrollment.
+          </p>
+        </div>
+      ) : profile.role === 1 && profile.student_status === 4 ? (
+        <div className="text-lg text-gray-700">
+          {/* Add content for role 2 here */}
+          <p>
+            You are officially enrolled! Check the Schedule Page to see more details of your subjects.
           </p>
         </div>
       ) : profile.role === 2 ? (

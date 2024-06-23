@@ -169,6 +169,18 @@ export const fetchSection = async (program_id) => {
 };
 
 // Fetch Sections
+export const fetchSectionByID = async (section_id) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/section/sectid/${section_id}`, { withCredentials: true });
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching sections in program ID ${section_id}:`, error);
+        throw error;
+    }
+};
+
+
+// Fetch Sections
 export const fetchSectionCount = async (section_id) => {
     try {
         const response = await axios.get(`${API_BASE_URL}/section/sectid/${section_id}/count`, { withCredentials: true });
@@ -248,7 +260,7 @@ export const setApplicationStatus = async (studentID) => {
         console.error(error);
     }
 }
-
+;
 // Fetch Application Status using Student ID
 export const fetchAdmissionDetails = async () => {
     try {
@@ -259,3 +271,59 @@ export const fetchAdmissionDetails = async () => {
         throw error;
     }
 }
+
+// Enroll subjects
+export const enrollSubjects = async (subjects) => {
+    try {
+        console.log("Subjects to enroll: ", subjects);
+        const response = await axios.post(`${API_BASE_URL}/enrollment/enroll`, { subjects }, { withCredentials: true });
+        return response.data;
+    } catch (error) {
+        console.error(`Error enrolling:`, error);
+        throw error;
+    }
+};
+
+// Enroll subjects
+export const hasEnrolled = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/enrollment/enrolled`, { withCredentials: true });
+        return response.data;
+    } catch (error) {
+        console.error(`Error enrolling:`, error);
+        throw error;
+    }
+};
+
+// Fetching enrollment information
+export const fetchEnrollment = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/enrollment`, { withCredentials: true });
+        return response.data;
+    } catch (error) {
+        console.error(`Error enrolling:`, error);
+        throw error;
+    }
+};
+
+// Fetching enrollment list
+export const fetchEnrollmentList = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/enrollment/list`, { withCredentials: true });
+        return response.data;
+    } catch (error) {
+        console.error(`Error enrolling:`, error);
+        throw error;
+    }
+};
+
+// Fetching enrollment list
+export const enrollStudent = async (student_id) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/enrollment/accept/${student_id}`, { withCredentials: true });
+        return response.data;
+    } catch (error) {
+        console.error(`Error enrolling:`, error);
+        throw error;
+    }
+};

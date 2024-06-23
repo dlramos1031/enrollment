@@ -138,6 +138,12 @@ export async function getSection(id) {
     return rows;
 }
 
+// fetching a section
+export async function getSectionBySecID(id) {
+    const [rows] = await pool.query("SELECT `section_id`, `section_name` FROM `section` WHERE `section_id` = ?", [id]);
+    return rows;
+}
+
 // fetching sections in a program
 export async function getSectionLength(id) {
     const [rows] = await pool.query("SELECT * FROM `enrollment` e JOIN `section_subject` s ON e.section_subject_id = s.section_subject_id WHERE `section_id` = ?", [id]);
@@ -178,4 +184,42 @@ export async function getAdmissionDetails(id) {
 export async function roleToStudent(user_id) {
     const result = await pool.query("UPDATE `user` SET `role` = 1 WHERE `user_id` = ?", [user_id]);
     return result;
+}
+
+// Enrolling a subject
+export async function enrollSubject(section_subject_id, student_id) {
+    const result = await pool.query("INSERT INTO `enrollment` (`section_subject_id`, `student_id`) VALUES (?, ?)", [section_subject_id, student_id]);
+    return result;
+}
+
+// Checking if student has enrolled
+export async function hasEnrolled(student_id) {
+    const [rows] = await pool.query("SELECT * FROM `enrollment` WHERE `student_id` = ?", [student_id]);
+    return rows.length;
+}
+
+
+// get enrollment information
+export async function getEnrollment(student_id) {
+    const [rows] = await pool.query("SELECT * FROM `enrollment` e JOIN `section_subject` ss ON e.`section_subject_id` = ss.`section_subject_id` WHERE e.`student_id` = ?", [student_id]);
+    return rows;
+}
+
+// get enrollment list
+export async function getEnrollmentList() {
+    const [rows] = await pool.query("SELECT s.`student_id`, s.`first_name`, s.`last_name`, s.`suffix`, s.`middle_name`, s.`contact_number`, s.`email_address`, d.`abbr`, p.`program_code`, a.`student_type` FROM `student` s JOIN `application` a ON s.`student_id` = a.`student_id` JOIN `program` p ON a.`program_id` = p.`program_id` JOIN `department` d ON p.`dept_id` = d.`dept_id` WHERE s.`status` = 3");
+    if (rows.length) {
+        let res = [];
+        for(let i = 0; i < rows.length; i++) {
+            [res] = await pool.query("SELECT sec.section_name, sub.subject_code, e.enrollment_date FROM section_subject ss JOIN section sec on ss.section_id = sec.section_id JOIN subjects sub ON ss.subject_id = sub.subject_id JOIN enrollment e ON ss.section_subject_id = e.section_subject_id WHERE e.student_id = ?", [rows[i].student_id]);
+            rows[i] = {...rows[i], enr_detail: res};
+        }
+    }
+    return rows;
+}
+
+// accept a student enrollment
+export async function acceptEnrollment(student_id) {
+    await pool.query("UPDATE `enrollment` SET `enrollment_status` = 1 WHERE `student_id` = ?", [student_id]);
+    await pool.query("UPDATE `student` SET `status` = 4 WHERE `student_id` = ?", [student_id]);
 }

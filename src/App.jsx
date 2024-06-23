@@ -8,6 +8,7 @@ import Home from "./components/pages/Home";
 import AppForm from "./components/pages/AppForm";
 import AppList from "./components/pages/AppList";
 import EnrollmentForm from "./components/pages/EnrollmentForm";
+import EnrollmentsList from "./components/pages/EnrollmentList";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="appform" element={<AppForm />} />
           <Route path="applist" element={<AppList />} />
           <Route path="enrollment" element={<EnrollmentForm />} />
+          <Route path="enrolllist" element={<EnrollmentsList />} />
         </Route>
       </Routes>
     </Router>

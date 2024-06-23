@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 function EnrollmentStep3({ formData, setFormData, sections, sectionCount, currentStep, setEnableNext }) {
   useEffect(() => {
-    setEnableNext(!!formData.section);
+    setEnableNext(Boolean(formData.section));
   }, [currentStep, formData.section]);
 
   const handleSectionChange = (e) => {

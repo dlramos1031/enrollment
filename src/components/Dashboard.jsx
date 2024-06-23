@@ -6,7 +6,7 @@ import { Home, LogOut, StickyNote, List } from "lucide-react";
 
 const Dashboard = () => {
   const [profile, setProfile] = useState({
-    role: -1
+    role: 0
   });
   const navigate = useNavigate();
 
@@ -34,6 +34,7 @@ const Dashboard = () => {
         {(profile.role === 0 || profile.role === 1) && <SidebarItem icon={<StickyNote size={20} />} text="Application Form" alert to="/dashboard/appform" />}
         {(profile.role === 1 && profile.student_status >= 2) ? <SidebarItem icon={<StickyNote size={20} />} text="Enrollment" alert to="/dashboard/enrollment" /> : ""}
         {(profile.role === 2 || profile.role === 3 || profile.role === 4) && <SidebarItem icon={<List size={20} />} text="Applications" alert to="/dashboard/applist" />}
+        {(profile.role === 5) && <SidebarItem icon={<StickyNote size={20} />} text="Enrollment List" alert to="/dashboard/enrolllist" />}
         <hr className="my-3" />
         <SidebarItem icon={<LogOut size={20} />} text="Log Out" to="/login" onClick={handleLogout} />
       </Sidebar>

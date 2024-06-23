@@ -6,6 +6,7 @@ import "../../App.css";
 
 function AppList() {
   const [applications, setApplications] = useState([]);
+  const [change, setChange] = useState(false);
   const studentType = [
     "Freshman",
     "Transferee",
@@ -23,11 +24,13 @@ function AppList() {
       }
     };
     fetchAppList();
-  }, []);
+    setChange(false);
+  }, [change]);
 
   const handleAccept = async (id) => {
     try {
       await setApplicationStatus(id);
+      setChange(true);
     } catch (error) {
       console.error("Error accepting application:", error);
     }
