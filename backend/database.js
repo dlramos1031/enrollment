@@ -146,7 +146,7 @@ export async function getSectionLength(id) {
 
 // fetching subjects in a section
 export async function getSubjects(id) {
-    const [rows] = await pool.query("SELECT s.`subject_code`, s.`title`, s.`units`, ss.`schedule`, ss.`room`, i.`first_name`, i.`last_name` FROM `section_subject` ss JOIN `instructors` i ON ss.`instructor_id` = i.`instructor_id`JOIN `subjects` s ON ss.`subject_id` = s.`subject_id` WHERE ss.`section_id` = ?", [id]);
+    const [rows] = await pool.query("SELECT s.`subject_code`, s.`title`, s.`units`, ss.`schedule`, ss.`room`, i.`first_name`, i.`last_name`, ss.`section_subject_id` FROM `section_subject` ss JOIN `instructors` i ON ss.`instructor_id` = i.`instructor_id`JOIN `subjects` s ON ss.`subject_id` = s.`subject_id` WHERE ss.`section_id` = ?", [id]);
     return rows;
 }
 

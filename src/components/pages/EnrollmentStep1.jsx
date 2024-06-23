@@ -1,7 +1,6 @@
-
+import PropTypes from 'prop-types';
 
 function EnrollmentStep1({ formData }) {
-
   return (
     <div className="p-6 bg-sky-200 rounded-md shadow-md">
       <h2 className="text-xl font-semibold mb-4">Program and Major</h2>
@@ -26,5 +25,12 @@ function EnrollmentStep1({ formData }) {
     </div>
   );
 }
+
+EnrollmentStep1.propTypes = {
+  formData: PropTypes.shape({
+    program: PropTypes.string.isRequired,
+    major: PropTypes.string.isRequired,
+  }).isRequired,
+};
 
 export default EnrollmentStep1;

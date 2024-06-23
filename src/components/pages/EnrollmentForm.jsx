@@ -19,9 +19,9 @@ function EnrollmentForm() {
   const [currentStep, setCurrentStep] = useState(0);
   const [enableNext, setEnableNext] = useState(true);
   const [formData, setFormData] = useState({
-    program: "Chosen Program", // default selected program
+    program: "Chosen Program", 
     program_id: 0,
-    major: "N / A", // default selected major
+    major: "N / A", 
     yearLevel: "1st Year - 1st Semester",
     section: 0,
     chosenSubs: [],
@@ -48,6 +48,7 @@ function EnrollmentForm() {
       try {
         const secs = await fetchSection(formData.program_id);
         setSections(secs);
+        console.log(subjects);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -59,7 +60,6 @@ function EnrollmentForm() {
     const fetchSectionSubjects = async () => {
       try {
         const subs = await fetchSubjects(formData.section);
-        console.log(subs);
         setSubjects(subs);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -91,8 +91,11 @@ function EnrollmentForm() {
   const handlePrevious = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
-      console.log("Current step: ", currentStep);
     }
+  };
+
+  const handleConfirm = () => {
+    alert("Enrollment completed!");
   };
 
   return (
@@ -122,7 +125,7 @@ function EnrollmentForm() {
           </button>
         ) : (
           <button
-            onClick={() => alert("Enrollment completed!")}
+            onClick={handleConfirm}
             className="px-4 py-2 bg-green-600 text-white rounded-md shadow-sm hover:bg-green-700 focus:outline-none"
           >
             Confirm

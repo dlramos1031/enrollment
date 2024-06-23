@@ -1,13 +1,13 @@
-import { useEffect } from "react";
+import { useEffect } from 'react';
+import PropTypes from 'prop-types';
 
 function EnrollmentStep3({ formData, setFormData, sections, sectionCount, currentStep, setEnableNext }) {
-
   useEffect(() => {
-    setEnableNext(formData.section);
+    setEnableNext(!!formData.section);
   }, [currentStep, formData.section]);
 
   const handleSectionChange = (e) => {
-    setFormData({ ...formData, section: e.target.value });
+    setFormData({ ...formData, section: Number(e.target.value) });
   };
 
   return (
@@ -31,5 +31,19 @@ function EnrollmentStep3({ formData, setFormData, sections, sectionCount, curren
     </div>
   );
 }
+
+EnrollmentStep3.propTypes = {
+  formData: PropTypes.shape({
+    section: PropTypes.number.isRequired,
+  }).isRequired,
+  setFormData: PropTypes.func.isRequired,
+  sections: PropTypes.arrayOf(PropTypes.shape({
+    section_id: PropTypes.number.isRequired,
+    section_name: PropTypes.string.isRequired,
+  })).isRequired,
+  sectionCount: PropTypes.number.isRequired,
+  currentStep: PropTypes.number.isRequired,
+  setEnableNext: PropTypes.func.isRequired,
+};
 
 export default EnrollmentStep3;

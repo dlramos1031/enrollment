@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types';
+
 function EnrollmentStep2({ formData }) {
   return (
     <div className="p-6 bg-sky-200 rounded-md shadow-md">
@@ -14,5 +16,11 @@ function EnrollmentStep2({ formData }) {
     </div>
   );
 }
+
+EnrollmentStep2.propTypes = {
+  formData: PropTypes.shape({
+    yearLevel: PropTypes.string.isRequired,
+  }).isRequired,
+};
 
 export default EnrollmentStep2;
