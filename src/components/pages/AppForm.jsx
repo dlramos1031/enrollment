@@ -140,7 +140,7 @@ function AppForm() {
         Application Form
       </h2>
       <div className="flex flex-row gap-6">
-        <form className="basis-2/3 px-10 py-6 bg-blue-100 border-blue-800 border-2 rounded-md">
+        <form className="basis-4/5 px-10 py-6 bg-blue-100 border-blue-800 border-2 rounded-md">
           <h3 className="px-4 text-xl font-semibold mb-2 text-gray-800">
             Personal Details
           </h3>
@@ -440,7 +440,7 @@ function AppForm() {
             )}
           </div>
         </form>
-        <div className="basis-1/3 px-10 py-6 bg-yellow-50 border-green-800 border-2 rounded-md">
+        <div className="basis-1/5 px-10 py-6 bg-yellow-50 border-green-800 border-2 rounded-md">
           <h3 className="text-xl font-semibold mb-6 text-gray-800">
             Application Status
           </h3>

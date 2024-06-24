@@ -18,7 +18,7 @@ function EnrollmentsList() {
       }
     };
     fetchEnrollments();
-  }, []);
+  });
 
   const handleApprove = async (id) => {
     try {

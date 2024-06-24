@@ -40,7 +40,7 @@ const Home = () => {
   return (
     <div className="p-6 bg-gray-200 shadow-md rounded-md max-w-full m-auto">
       <h2 className="text-2xl font-semibold mb-6 text-gray-800">
-        Hello there!
+        Home Page
       </h2>
       <div className="text-lg text-gray-700">
         <p>

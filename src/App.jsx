@@ -9,6 +9,7 @@ import AppForm from "./components/pages/AppForm";
 import AppList from "./components/pages/AppList";
 import EnrollmentForm from "./components/pages/EnrollmentForm";
 import EnrollmentsList from "./components/pages/EnrollmentList";
+import SubjectList from "./components/pages/SubjectList";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="applist" element={<AppList />} />
           <Route path="enrollment" element={<EnrollmentForm />} />
           <Route path="enrolllist" element={<EnrollmentsList />} />
+          <Route path="sublist" element={<SubjectList />} />
         </Route>
       </Routes>
     </Router>

@@ -13,7 +13,8 @@ import { getStudent, getStudents, createUser, getUserByUsername,
     getStudentStatus, getAdmissionDetails, getPrograms,
     getSection, getSectionLength, getSubjects, enrollSubject,
     hasEnrolled, getEnrollment, getSectionBySecID, 
-    getEnrollmentList, acceptEnrollment } from './database.js';
+    getEnrollmentList, acceptEnrollment, 
+    getSubjectList} from './database.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -34,19 +35,36 @@ const sessionStore = new MySQLStore(dbOptions);
 
 // Configure session middleware
 app.use(session({
-    key: 'enrollment_session',
+    key: 'enrollment_session', // Key name for the session ID cookie
     secret: process.env.SESSION_SECRET,
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
     rolling: true, // Renew session each request
-    cookie: { secure: false, maxAge: 30 * 60 * 1000 } // 30 minutes
+    cookie: {
+        secure: false, // Set to true if using HTTPS
+        maxAge: 60 * 60 * 1000, // 1 Hour
+        sameSite: 'lax', // Adjust sameSite attribute for cross-origin requests
+    }
 }));
 
+// Allowed origins array
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:5175',
+];
 
 // Set up CORS configuration
 const corsOptions = {
-    origin: 'http://localhost:5173',
+    origin: function (origin, callback) {
+        // Check if the incoming origin is in the allowedOrigins array
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
 };
 
@@ -479,6 +497,18 @@ app.get('/api/enrollment/accept/:id', async (req, res) => {
         await acceptEnrollment(req.params.id);
     } catch (error) {
         console.error('Error accepting enrollment:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Route for accepting enrollment
+app.get('/api/subject', async (req, res) => {
+    try {
+        const studentID = await getStudentIDByUserID(req.session.user_id);
+        const result = await getSubjectList(studentID.student_id);
+        res.json(result);
+    } catch (error) {
+        console.error('Error fetching subjects:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });

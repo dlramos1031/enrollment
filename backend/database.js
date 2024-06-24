@@ -223,3 +223,9 @@ export async function acceptEnrollment(student_id) {
     await pool.query("UPDATE `enrollment` SET `enrollment_status` = 1 WHERE `student_id` = ?", [student_id]);
     await pool.query("UPDATE `student` SET `status` = 4 WHERE `student_id` = ?", [student_id]);
 }
+
+// get list of a student's subjects
+export async function getSubjectList(student_id) {
+    const [rows] = await pool.query("SELECT sub.subject_code, sub.title, sub.units, sec.section_name, ss.schedule, ss.room, i.first_name, i.last_name, i.email FROM enrollment e JOIN section_subject ss ON e.section_subject_id = ss.section_subject_id JOIN subjects sub ON ss.subject_id = sub.subject_id JOIN section sec ON ss.section_id = sec.section_id JOIN instructors i ON ss.instructor_id = i.instructor_id WHERE e.student_id = ?", [student_id]);
+    return rows;
+}

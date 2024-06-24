@@ -327,3 +327,14 @@ export const enrollStudent = async (student_id) => {
         throw error;
     }
 };
+
+// Fetching enrollment list
+export const fetchStudentSubs = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/subject`, { withCredentials: true });
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching:`, error);
+        throw error;
+    }
+};

@@ -67,8 +67,8 @@ const Register = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-200 shadow-md rounded-md max-w-md mx-auto mt-10">
-      <h2 className="text-2xl font-semibold mb-6 text-gray-800">Register</h2>
+    <div className="p-6 bg-gray-100 shadow-md rounded-md max-w-md mx-auto mt-10">
+      <h2 className="text-2xl font-semibold mb-6 text-gray-800">Register An Account</h2>
       {error && (
         <div className="my-4 p-2 rounded-md text-red-800 bg-red-200">
           {error}
