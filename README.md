@@ -24,7 +24,7 @@ Before we start, open the repository in VS Code.
 
 ### React + Vite
 
-1. Open another terminal by clicking the + sign at the upper right of the express server terminal.
+1. Go to the terminal tab at the top of VS Code, then choose New Terminal.
 2. Type this command to install project dependencies:
 	``` 
 	npm install 
